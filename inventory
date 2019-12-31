@@ -1,0 +1,2 @@
+[ubuntu_vm]
+10.211.55.13 ansible_ssh_pass=qwerty ansible_ssh_user=evgeniy

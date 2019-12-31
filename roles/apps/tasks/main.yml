@@ -1,0 +1,129 @@
+- name: Add Open JDK repository to apt
+  apt_repository:
+    repo: "ppa:openjdk-r/ppa"
+    state: present
+
+- name: Update apt-cache 
+  apt: 
+    update_cache: yes
+
+- name: Install Open JDK8
+  apt:
+    name: "openjdk-8-jdk"
+    state: present
+    install_recommends: no
+
+- name: Add a signing key for elasticsearch
+  apt_key:
+    url: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+    state: present
+
+- name: Install apt-transport-https
+  apt:
+    name: apt-transport-https
+    state: present
+
+
+# Elastic #####################################################
+
+- name: Add elastic repository file
+  template:
+    src: elastic-7.x.list.j2
+    dest: "/etc/apt/sources.list.d/elastic-7.x.list"
+    mode: "0644"
+    force: no
+
+- name: Apt update package cache
+  apt:
+    update_cache: yes
+
+- name: Install elasticsearch
+  apt:
+    name: elasticsearch=7.5.1
+    state: present
+
+- name: Copy elasticsearch config
+  template:
+    src: elasticsearch.yml.j2
+    dest: "/etc/elasticsearch/elasticsearch.yml"
+    mode: "0644"
+    force: yes
+
+- name: Add elasticsearch to systemd
+  systemd:
+    name: elasticsearch
+    enabled: yes
+    state: restarted
+    daemon_reload: yes
+    
+
+# Kibana #####################################################
+
+- name: Install kibana
+  apt:
+    name: kibana=7.5.1
+    state: present
+
+- name: Copy kibana config
+  template:
+    src: kibana.yml.j2
+    dest: "/etc/kibana/kibana.yml"
+    mode: "0644"
+    force: yes
+
+- name: Add kibana to systemd
+  systemd:
+    name: kibana
+    enabled: yes
+    state: restarted
+    daemon_reload: yes
+
+
+# Logstash #####################################################
+
+- name: Install logstash
+  apt:
+    name: logstash=1:7.5.1-1
+    state: present
+
+- name: Add logstash to systemd
+  systemd:
+    name: logstash
+    enabled: yes
+    state: restarted
+    daemon_reload: yes
+
+ 
+# Beats Family #####################################################
+
+- name: Install libpcap0.8
+  apt:
+    name: libpcap0.8
+    state: present
+
+- include_tasks: install_beats.yml
+  with_items:
+    - filebeat
+    - packetbeat
+    - metricbeat
+    - heartbeat-elastic
+    - auditbeat
+  loop_control:
+    loop_var: app
+
+
+# Tidying Up #######################################################
+
+- name: Clean unneeded packages
+  apt:
+    autoremove: yes
+
+# Update file search cache #########################################
+
+# - name: Update file search cache
+#   command:
+#     cmd: updatedb
+
+
+
+

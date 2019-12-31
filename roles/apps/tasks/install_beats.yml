@@ -1,0 +1,13 @@
+---
+
+- name: Install {{ app }}
+  apt:
+    name: "{{ app }}=7.5.1"
+    state: present
+
+- name: Add {{ app }} to systemd
+  systemd:
+    name: "{{ app }}"
+    enabled: yes
+    state: restarted
+    daemon_reload: yes

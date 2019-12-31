@@ -1,0 +1,25 @@
+# Run ansible 'ansible-playbook -K -i inventory playbook.yml
+
+- name: System provisioning
+  hosts: all
+  become: true
+  # hosts: localhost
+  # connection: local
+  gather_facts: True
+
+  # vars:
+  #   users:
+  #     - name: Evgeniy
+  #       username: "{{ ansible_env.USER }}"
+  #       home: "{{ ansible_env.HOME }}"
+
+  tasks:
+    - debug:
+        msg: "User name: {{ ansible_env.USER }}"
+
+  # roles are a way to group tasks; they will run in the sequence determined here
+  roles:
+    - { role: apps }
+    # - { role: oh-my-zsh }
+    # - { role: apps }
+    # - { role: macos}
